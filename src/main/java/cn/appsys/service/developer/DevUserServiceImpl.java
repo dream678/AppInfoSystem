@@ -3,25 +3,37 @@ package cn.appsys.service.developer;
 import cn.appsys.dao.devuser.DevUserMapper;
 import cn.appsys.pojo.DevUser;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 
+/**
+ * Created with IntelliJ IDEA.
+ * User:admin
+ * Date:2018/11/24
+ * Time:10:54
+ * Desc:
+ */
 @Service
+@Transactional
 public class DevUserServiceImpl implements DevUserService {
-    @Resource
-    private DevUserMapper mapper;
+    @Resource(name = "devUserMapper")
+    private DevUserMapper devUserMapper;
 
     @Override
-    public DevUser login(String devCode, String devPassword) throws Exception {
-        // TODO Auto-generated method stub
-        DevUser user = null;
-        user = mapper.getLoginUser(devCode);
-        //匹配密码
-        if (null != user) {
-            if (!user.getDevPassword().equals(devPassword))
-                user = null;
+    @Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+    public DevUser serlect(String devCode, String pwd) {
+        DevUser devUser = null;
+        try {
+            devUser = devUserMapper.serlect(devCode);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-        return user;
+        if (!devUser.getDevPassword().equals(pwd)) {
+            devUser = null;
+        }
+        return devUser;
     }
 
 }
